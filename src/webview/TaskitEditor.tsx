@@ -1,6 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import TaskList from './TaskList';
-import './TaskitEditor.css';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import TaskList from "./TaskList";
+import "./TaskitEditor.css";
 
 interface VSCodeApi {
   postMessage(message: any): void;
@@ -12,6 +18,7 @@ interface Task {
   id: string;
   text: string;
   completed: boolean;
+  status?: 'todo' | 'doing' | 'done';
   line: number;
 }
 
@@ -25,109 +32,285 @@ declare global {
 }
 
 const TaskitEditor: React.FC = () => {
-  const [text, setText] = useState(window.initialData?.text || '');
-  const [isEditing, setIsEditing] = useState(false);
-  const [originalText, setOriginalText] = useState(window.initialData?.text || '');
-  const [view, setView] = useState<'formatted' | 'raw'>('formatted');
+  const [text, setText] = useState(window.initialData?.text || "");
+  const [view, setView] = useState<"combined" | "table" | "text">("combined");
   const [vscodeApi] = useState(() => acquireVsCodeApi());
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSentTextRef = useRef(window.initialData?.text || "");
+  const isUserTypingRef = useRef(false);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Helper function to normalize line endings
+  const normalizeText = useCallback((text: string) => {
+    return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  }, []);
 
   // Parse tasks from text
   const tasks = useMemo(() => {
-    const lines = text.split('\r\n');
+    // Normalize line endings and split
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
     const parsedTasks: Task[] = [];
-    
+
     lines.forEach((line, index) => {
-      // Match patterns like [ ], [x], [X] for tasks
-      const taskMatch = line.match(/^(\s*)(- )?\[([ xX])\]\s*(.+)$/);
+      // Match patterns like [ ], [*], [x], [X] for tasks
+      const taskMatch = line.match(/^(\s*)(- )?\[([ *xX])\]\s*(.+)$/);
       if (taskMatch) {
         const [, , , checkbox, taskText] = taskMatch;
+        const checkboxLower = checkbox.toLowerCase();
+        
+        let status: 'todo' | 'doing' | 'done';
+        let completed: boolean;
+        
+        if (checkboxLower === 'x') {
+          status = 'done';
+          completed = true;
+        } else if (checkboxLower === '*') {
+          status = 'doing';
+          completed = false;
+        } else {
+          status = 'todo';
+          completed = false;
+        }
+        
+        // Create a more stable ID based on content hash and position
+        const contentHash = taskText.trim().replace(/\s+/g, "-").toLowerCase();
         parsedTasks.push({
-          id: `task-${index}`,
+          id: `task-${index}-${contentHash.substring(0, 10)}`,
           text: taskText.trim(),
-          completed: checkbox.toLowerCase() === 'x',
-          line: index
+          completed,
+          status,
+          line: index,
         });
       }
     });
-    
+
     return parsedTasks;
-  }, [text]);
+  }, [text, normalizeText]);
 
   useEffect(() => {
     // Listen for messages from the extension
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
-      console.log('Received message from webview:', message);
       switch (message.type) {
-        case 'update':
-          if (!isEditing) {
+        case "update":
+          // Only update if the text is different from what we last sent AND user is not actively typing
+          if (
+            message.text !== lastSentTextRef.current &&
+            !isUserTypingRef.current
+          ) {
             setText(message.text);
-            setOriginalText(message.text);
+            lastSentTextRef.current = message.text;
           }
           break;
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [isEditing]);
+    window.addEventListener("message", handleMessage);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
+    // Cleanup function
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
-  const handleSave = () => {
+  const handleTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newText = e.target.value;
+
+      // Mark that user is actively typing
+      isUserTypingRef.current = true;
+
+      // Store cursor position before updating text
+      const cursorPosition = e.target.selectionStart;
+
+      setText(newText);
+
+      // Restore cursor position after state update
+      requestAnimationFrame(() => {
+        if (textAreaRef.current) {
+          textAreaRef.current.setSelectionRange(cursorPosition, cursorPosition);
+        }
+      });
+
+      // Clear existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Debounce the API call
+      timeoutRef.current = setTimeout(() => {
+        if (newText !== lastSentTextRef.current) {
+          vscodeApi.postMessage({
+            type: "update",
+            text: newText,
+          });
+          lastSentTextRef.current = newText;
+        }
+        // Mark that user is no longer actively typing
+        isUserTypingRef.current = false;
+      }, 200); // Slightly longer timeout for better stability
+    },
+    [vscodeApi]
+  );
+
+  const handleTaskAdd = (taskText: string) => {
+    // Temporarily disable typing detection during programmatic changes
+    isUserTypingRef.current = false;
+
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
+    const newTaskLine = `[ ] ${taskText}`;
+
+    // Find the best place to insert the task (after existing tasks or at the end)
+    let insertIndex = lines.length;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (lines[i].match(/^\s*(- )?\[([ xX])\]/)) {
+        insertIndex = i + 1;
+        break;
+      }
+    }
+
+    lines.splice(insertIndex, 0, newTaskLine);
+    const newText = lines.join("\n");
+
+    setText(newText);
+    lastSentTextRef.current = newText;
     vscodeApi.postMessage({
-      type: 'update',
-      text: text
+      type: "update",
+      text: newText,
     });
-    setOriginalText(text);
-    setIsEditing(false);
   };
 
-  const handleCancel = () => {
-    setText(originalText);
-    setIsEditing(false);
-  };
+  const handleTaskEdit = (taskId: string, newText: string) => {
+    // Temporarily disable typing detection during programmatic changes
+    isUserTypingRef.current = false;
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
+    const line = lines[task.line];
+    const checkboxMatch = line.match(/^(\s*)(- )?\[([ xX])\]\s*/);
+
+    if (checkboxMatch) {
+      const [, indent, dash, checkbox] = checkboxMatch;
+      const newLine = `${indent}${dash || ""}[${checkbox}] ${newText}`;
+      lines[task.line] = newLine;
+      const newTextContent = lines.join("\n");
+
+      setText(newTextContent);
+      lastSentTextRef.current = newTextContent;
+      vscodeApi.postMessage({
+        type: "update",
+        text: newTextContent,
+      });
+    }
   };
 
   const handleTaskToggle = (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    // Temporarily disable typing detection during programmatic changes
+    isUserTypingRef.current = false;
+
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    const lines = text.split('\n');
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
     const line = lines[task.line];
+
+    // Cycle through the states: todo -> doing -> done -> todo
+    let newCheckbox: string;
+    const currentStatus = task.status || (task.completed ? 'done' : 'todo');
     
-    // Toggle the checkbox
-    const newLine = task.completed 
-      ? line.replace(/\[x\]/i, '[ ]')
-      : line.replace(/\[ \]/, '[x]');
-    
+    switch (currentStatus) {
+      case 'todo':
+        newCheckbox = '[*]';
+        break;
+      case 'doing':
+        newCheckbox = '[x]';
+        break;
+      case 'done':
+        newCheckbox = '[ ]';
+        break;
+      default:
+        newCheckbox = '[*]';
+    }
+
+    // Replace the checkbox in the line
+    const newLine = line.replace(/\[([ *xX])\]/, newCheckbox);
+
     lines[task.line] = newLine;
-    const newText = lines.join('\n');
-    
+    const newText = lines.join("\n");
+
     setText(newText);
+    lastSentTextRef.current = newText;
     vscodeApi.postMessage({
-      type: 'update',
-      text: newText
+      type: "update",
+      text: newText,
     });
   };
 
   const handleTaskDelete = (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    // Temporarily disable typing detection during programmatic changes
+    isUserTypingRef.current = false;
+
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    const lines = text.split('\n');
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
     lines.splice(task.line, 1);
-    const newText = lines.join('\n');
-    
+    const newText = lines.join("\n");
+
     setText(newText);
+    lastSentTextRef.current = newText;
     vscodeApi.postMessage({
-      type: 'update',
-      text: newText
+      type: "update",
+      text: newText,
+    });
+  };
+
+  const handleStatusChange = (taskId: string, newStatus: 'todo' | 'doing' | 'done') => {
+    // Temporarily disable typing detection during programmatic changes
+    isUserTypingRef.current = false;
+
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const normalizedText = normalizeText(text);
+    const lines = normalizedText.split("\n");
+    const line = lines[task.line];
+
+    // Set the specific status
+    let newCheckbox: string;
+    switch (newStatus) {
+      case 'todo':
+        newCheckbox = '[ ]';
+        break;
+      case 'doing':
+        newCheckbox = '[*]';
+        break;
+      case 'done':
+        newCheckbox = '[x]';
+        break;
+    }
+
+    // Replace the checkbox in the line
+    const newLine = line.replace(/\[([ *xX])\]/, newCheckbox);
+
+    lines[task.line] = newLine;
+    const newText = lines.join("\n");
+
+    setText(newText);
+    lastSentTextRef.current = newText;
+    vscodeApi.postMessage({
+      type: "update",
+      text: newText,
     });
   };
 
@@ -136,69 +319,82 @@ const TaskitEditor: React.FC = () => {
       <div className="task-container">
         <div className="header">
           <div className="view-toggle">
-            <button 
-              className={`toggle-btn ${view === 'formatted' ? 'active' : ''}`}
-              onClick={() => setView('formatted')}
+            <button
+              className={`toggle-btn ${view === "combined" ? "active" : ""}`}
+              onClick={() => setView("combined")}
             >
-              Tasks View
+              Combined
             </button>
-            <button 
-              className={`toggle-btn ${view === 'raw' ? 'active' : ''}`}
-              onClick={() => setView('raw')}
+            <button
+              className={`toggle-btn ${view === "table" ? "active" : ""}`}
+              onClick={() => setView("table")}
             >
-              Raw Text
+              Table
+            </button>
+            <button
+              className={`toggle-btn ${view === "text" ? "active" : ""}`}
+              onClick={() => setView("text")}
+            >
+              Text
             </button>
           </div>
-          {view === 'raw' && (
-            <button className="edit-button" onClick={handleEdit}>
-              Edit
-            </button>
-          )}
         </div>
 
-        {view === 'formatted' ? (
-          <div className="formatted-view">
-            <h3>Tasks ({tasks.length})</h3>
-            <TaskList 
-              tasks={tasks}
-              onTaskToggle={handleTaskToggle}
-              onTaskDelete={handleTaskDelete}
-            />
+        {view === "combined" ? (
+          <div className="combined-view">
+            <div className="tasks-panel">
+              <TaskList
+                tasks={tasks}
+                onTaskToggle={handleTaskToggle}
+                onTaskDelete={handleTaskDelete}
+                onTaskEdit={handleTaskEdit}
+                onTaskAdd={handleTaskAdd}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
+            <div className="text-panel">
+              <div className="edit-mode">
+                <textarea
+                  ref={textAreaRef}
+                  className="edit-area"
+                  value={text}
+                  onChange={handleTextChange}
+                  placeholder="Enter your tasks here using format: [ ] Task name or [x] Completed task"
+                />
+              </div>
+            </div>
+          </div>
+        ) : view === "table" ? (
+          <TaskList
+            tasks={tasks}
+            onTaskToggle={handleTaskToggle}
+            onTaskDelete={handleTaskDelete}
+            onTaskEdit={handleTaskEdit}
+            onTaskAdd={handleTaskAdd}
+            onStatusChange={handleStatusChange}
+          />
+        ) : (
+          <div className="text-view">
+            <div className="edit-mode">
+              <textarea
+                ref={textAreaRef}
+                className="edit-area"
+                value={text}
+                onChange={handleTextChange}
+                placeholder="Enter your tasks here using format: [ ] Task name or [x] Completed task"
+              />
+            </div>
             {tasks.length === 0 && (
               <div className="help-text">
-                <p>Switch to Raw Text view to add tasks using this format:</p>
+                <p>Add tasks using this format:</p>
                 <pre>
-                  [ ] Incomplete task{'\n'}
+                  [ ] Incomplete task{"\n"}
+                  [*] Pendig task{"\n"}
                   [x] Completed task
                 </pre>
               </div>
             )}
           </div>
-        ) : (
-          <>
-            {!isEditing ? (
-              <div className="task-content">
-                {text}
-              </div>
-            ) : (
-              <div className="edit-mode">
-                <textarea
-                  className="edit-area"
-                  value={text}
-                  onChange={handleTextChange}
-                  autoFocus
-                />
-                <div className="button-group">
-                  <button className="save-button" onClick={handleSave}>
-                    Save
-                  </button>
-                  <button className="cancel-button" onClick={handleCancel}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>
