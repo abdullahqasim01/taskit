@@ -18,7 +18,7 @@ interface Task {
   id: string;
   text: string;
   completed: boolean;
-  status?: 'todo' | 'doing' | 'done';
+  status?: "todo" | "doing" | "done";
   line: number;
 }
 
@@ -58,21 +58,21 @@ const TaskitEditor: React.FC = () => {
       if (taskMatch) {
         const [, , , checkbox, taskText] = taskMatch;
         const checkboxLower = checkbox.toLowerCase();
-        
-        let status: 'todo' | 'doing' | 'done';
+
+        let status: "todo" | "doing" | "done";
         let completed: boolean;
-        
-        if (checkboxLower === 'x') {
-          status = 'done';
+
+        if (checkboxLower === "x") {
+          status = "done";
           completed = true;
-        } else if (checkboxLower === '*') {
-          status = 'doing';
+        } else if (checkboxLower === "*") {
+          status = "doing";
           completed = false;
         } else {
-          status = 'todo';
+          status = "todo";
           completed = false;
         }
-        
+
         // Create a more stable ID based on content hash and position
         const contentHash = taskText.trim().replace(/\s+/g, "-").toLowerCase();
         parsedTasks.push({
@@ -225,20 +225,20 @@ const TaskitEditor: React.FC = () => {
 
     // Cycle through the states: todo -> doing -> done -> todo
     let newCheckbox: string;
-    const currentStatus = task.status || (task.completed ? 'done' : 'todo');
-    
+    const currentStatus = task.status || (task.completed ? "done" : "todo");
+
     switch (currentStatus) {
-      case 'todo':
-        newCheckbox = '[*]';
+      case "todo":
+        newCheckbox = "[*]";
         break;
-      case 'doing':
-        newCheckbox = '[x]';
+      case "doing":
+        newCheckbox = "[x]";
         break;
-      case 'done':
-        newCheckbox = '[ ]';
+      case "done":
+        newCheckbox = "[ ]";
         break;
       default:
-        newCheckbox = '[*]';
+        newCheckbox = "[*]";
     }
 
     // Replace the checkbox in the line
@@ -275,7 +275,10 @@ const TaskitEditor: React.FC = () => {
     });
   };
 
-  const handleStatusChange = (taskId: string, newStatus: 'todo' | 'doing' | 'done') => {
+  const handleStatusChange = (
+    taskId: string,
+    newStatus: "todo" | "doing" | "done"
+  ) => {
     // Temporarily disable typing detection during programmatic changes
     isUserTypingRef.current = false;
 
@@ -289,14 +292,14 @@ const TaskitEditor: React.FC = () => {
     // Set the specific status
     let newCheckbox: string;
     switch (newStatus) {
-      case 'todo':
-        newCheckbox = '[ ]';
+      case "todo":
+        newCheckbox = "[ ]";
         break;
-      case 'doing':
-        newCheckbox = '[*]';
+      case "doing":
+        newCheckbox = "[*]";
         break;
-      case 'done':
-        newCheckbox = '[x]';
+      case "done":
+        newCheckbox = "[x]";
         break;
     }
 
@@ -312,6 +315,16 @@ const TaskitEditor: React.FC = () => {
       type: "update",
       text: newText,
     });
+  };
+
+  const getDone = () => {
+    let count = 0;
+    tasks.map((task) => {
+      if (task.status === "done") {
+        count = count + 1;
+      }
+    });
+    return count;
   };
 
   return (
@@ -337,6 +350,15 @@ const TaskitEditor: React.FC = () => {
             >
               Text
             </button>
+          </div>
+          <div className="progress-bar-container">
+            <p>
+              {getDone()}/{tasks.length} Tasks Completed
+            </p>
+            <progress
+              value={getDone() / tasks.length}
+              className="progress-bar"
+            />
           </div>
         </div>
 
