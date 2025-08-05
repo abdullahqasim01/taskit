@@ -76,10 +76,7 @@ Notes:
 
 ## 🔧 Installation
 
-1. Install from the VS Code Marketplace (when published)
-2. Or install from VSIX file:
-   - Download the `.vsix` file
-   - Run `code --install-extension taskit-x.x.x.vsix`
+1. Install from the VS Code Marketplace (search for taskit on marketplace.)
 
 ## 📋 Requirements
 
@@ -96,7 +93,7 @@ TaskIt works out of the box with no configuration required. The extension automa
 
 ## 📝 Release Notes
 
-### 0.0.1
+### 1.0.0
 
 - Initial release of TaskIt
 - Basic task management with checkbox syntax

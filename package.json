@@ -2,13 +2,41 @@
   "name": "taskit",
   "displayName": "TaskIt",
   "description": "A simple text based task list with the list view in vs code",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.102.0"
+  },
+  "galleryBanner": {
+    "color": "#73d0ef",
+    "theme": "dark"
   },
   "categories": [
     "Other"
   ],
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "homepage": "https://github.com/abdullahqasim01/taskit",
+  "bugs": {
+    "url": "https://github.com/abdullahqasim01/taskit/issues",
+    "email": "contact@abdullahqasim.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abdullahqasim01/taskit.git"
+  },
+  "keywords": [
+    "taskit",
+    "todo list",
+    "tasks list",
+    "todo tracker",
+    "tasks tracker"
+  ],
+  "publisher": "abdullahqasim",
+  "author": {
+    "name": "Abdullah Qasim",
+    "email": "contact@abdullahqasim.me",
+    "url": "https://abdullahqasim.me"
+  },
+  "icon": "images/icon.png",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
