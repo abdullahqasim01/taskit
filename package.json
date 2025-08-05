@@ -12,12 +12,18 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
+    "languages": [
       {
-        "command": "taskit.helloWorld",
-        "title": "Hello World"
+        "id": "taskit",
+        "extensions": [".taskit", ".taskit.txt"],
+        "aliases": ["TaskIt"],
+        "icon": {
+          "dark": "./file-icons/taskit-icon.svg",
+          "light": "./file-icons/taskit-icon.svg"
+        }
       }
     ],
+    "commands": [],
     "customEditors": [
       {
         "viewType": "taskit.taskitEditor",
@@ -25,6 +31,9 @@
         "selector": [
           {
             "filenamePattern": "*.taskit"
+          },
+          {
+            "filenamePattern": "*.taskit.txt"
           }
         ],
         "priority": "default"

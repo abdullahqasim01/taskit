@@ -1,71 +1,117 @@
-# taskit README
+# TaskIt 📝
 
-This is the README for your extension "taskit". After writing up a brief description, we recommend including the following sections.
+A simple yet powerful task management extension for VS Code that combines text-based simplicity with an interactive task view. Keep your tasks organized and accessible right within your development environment.
 
-## Features
+## ✨ Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+TaskIt provides a seamless task management experience with:
 
-For example if there is an image subfolder under your extension project workspace:
+### 📋 Interactive Task Management
+- **Dual View Mode**: Switch between raw text and interactive table view
+- **Task Status Tracking**: Support for Todo (`[ ]`), In Progress (`[*]`), and Done (`[x]`) states
+- **Inline Editing**: Edit tasks directly in the table view
+- **Real-time Sync**: Changes in text mode instantly reflect in table view and vice versa
 
-\!\[feature X\]\(images/feature-x.png\)
+### 📄 File Format Support
+- Works with `.taskit` and `.taskit.txt` files
+- Simple, human-readable text format
+- Compatible with any text editor
+- Version control friendly
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### 🎯 Task Syntax
+```
+[ ] Todo task
+[*] In progress task  
+[x] Completed task
+```
 
-## Requirements
+### 💡 Key Benefits
+- **Stay in VS Code**: No need to switch to external task managers
+- **Developer Friendly**: Text-based format that integrates with your workflow
+- **Flexible Views**: Choose between text editing and visual task management
+- **Lightweight**: Minimal overhead, maximum productivity
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## 🚀 Getting Started
 
-## Extension Settings
+1. **Create a Task File**: Create a new file with `.taskit` or `.taskit.txt` extension
+2. **Add Tasks**: Write tasks using the simple checkbox syntax:
+   ```
+   [ ] Review pull request
+   [*] Implement new feature
+   [x] Fix bug in authentication
+   ```
+3. **Switch Views**: Use the view toggle to switch between text and table modes
+4. **Manage Tasks**: Click checkboxes, edit text, or add new tasks in table view
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## 📖 Usage Examples
 
-For example:
+### Project Planning
+```
+Project Setup:
+[ ] Initialize repository
+[x] Set up development environment
+[ ] Configure CI/CD pipeline
+[*] Create initial documentation
 
-This extension contributes the following settings:
+Development Tasks:
+[ ] Implement user authentication
+[ ] Add database integration
+[ ] Write unit tests
+[ ] Deploy to staging
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Daily Task Management
+```
+Today's Tasks:
+[ ] Check emails
+[x] Team standup
+[ ] Code review for PR #456
+[*] Work on feature branch
+[ ] Update project documentation
 
-## Known Issues
+Notes:
+- Remember to sync with backend team
+- Deploy by Friday
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## 🔧 Installation
 
-## Release Notes
+1. Install from the VS Code Marketplace (when published)
+2. Or install from VSIX file:
+   - Download the `.vsix` file
+   - Run `code --install-extension taskit-x.x.x.vsix`
 
-Users appreciate release notes as you update your extension.
+## 📋 Requirements
 
-### 1.0.0
+- VS Code version 1.102.0 or higher
+- No additional dependencies required
 
-Initial release of ...
+## 🎛️ Extension Settings
 
-### 1.0.1
+TaskIt works out of the box with no configuration required. The extension automatically activates when you open `.taskit` or `.taskit.txt` files.
 
-Fixed issue #.
+## 🐛 Known Issues
 
-### 1.1.0
+- Initial release - please report any issues you encounter
 
-Added features X, Y, and Z.
+## 📝 Release Notes
+
+### 0.0.1
+
+- Initial release of TaskIt
+- Basic task management with checkbox syntax
+- Dual view mode (text and table)
+- Real-time synchronization between views
+- Support for todo, in-progress, and completed task states
+
+## 🤝 Contributing
+
+Found a bug or have a feature request? Please check the issues page or create a new issue.
+
+## 📄 License
+
+This extension is provided as-is. Please check the license file for more details.
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy staying organized with TaskIt! 🎉**
