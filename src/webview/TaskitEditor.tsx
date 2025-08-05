@@ -5,24 +5,14 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import TaskList from "./TaskList";
+import TaskTable from "./components/TaskTable";
 import "./TaskitEditor.css";
+import { TaskType, VSCodeApiType } from "./types";
+import Header from "./components/Header";
+import TaskText from "./components/TaskText";
+import TaskCombined from "./components/TaskCombined";
 
-interface VSCodeApi {
-  postMessage(message: any): void;
-  getState(): any;
-  setState(state: any): void;
-}
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  status?: "todo" | "doing" | "done";
-  line: number;
-}
-
-declare const acquireVsCodeApi: () => VSCodeApi;
+declare const acquireVsCodeApi: () => VSCodeApiType;
 declare global {
   interface Window {
     initialData?: {
@@ -33,7 +23,7 @@ declare global {
 
 const TaskitEditor: React.FC = () => {
   const [text, setText] = useState(window.initialData?.text || "");
-  const [view, setView] = useState<"combined" | "table" | "text">("combined");
+  const [view, setView] = useState<"combined" | "table" | "text">("table");
   const [vscodeApi] = useState(() => acquireVsCodeApi());
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSentTextRef = useRef(window.initialData?.text || "");
@@ -50,7 +40,7 @@ const TaskitEditor: React.FC = () => {
     // Normalize line endings and split
     const normalizedText = normalizeText(text);
     const lines = normalizedText.split("\n");
-    const parsedTasks: Task[] = [];
+    const parsedTasks: TaskType[] = [];
 
     lines.forEach((line, index) => {
       // Match patterns like [ ], [*], [x], [X] for tasks
@@ -212,49 +202,6 @@ const TaskitEditor: React.FC = () => {
     }
   };
 
-  const handleTaskToggle = (taskId: string) => {
-    // Temporarily disable typing detection during programmatic changes
-    isUserTypingRef.current = false;
-
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
-
-    const normalizedText = normalizeText(text);
-    const lines = normalizedText.split("\n");
-    const line = lines[task.line];
-
-    // Cycle through the states: todo -> doing -> done -> todo
-    let newCheckbox: string;
-    const currentStatus = task.status || (task.completed ? "done" : "todo");
-
-    switch (currentStatus) {
-      case "todo":
-        newCheckbox = "[*]";
-        break;
-      case "doing":
-        newCheckbox = "[x]";
-        break;
-      case "done":
-        newCheckbox = "[ ]";
-        break;
-      default:
-        newCheckbox = "[*]";
-    }
-
-    // Replace the checkbox in the line
-    const newLine = line.replace(/\[([ *xX])\]/, newCheckbox);
-
-    lines[task.line] = newLine;
-    const newText = lines.join("\n");
-
-    setText(newText);
-    lastSentTextRef.current = newText;
-    vscodeApi.postMessage({
-      type: "update",
-      text: newText,
-    });
-  };
-
   const handleTaskDelete = (taskId: string) => {
     // Temporarily disable typing detection during programmatic changes
     isUserTypingRef.current = false;
@@ -328,96 +275,47 @@ const TaskitEditor: React.FC = () => {
   };
 
   return (
-    <div className="taskit-container">
-      <div className="task-container">
-        <div className="header">
-          <div className="view-toggle">
-            <button
-              className={`toggle-btn ${view === "combined" ? "active" : ""}`}
-              onClick={() => setView("combined")}
-            >
-              Combined
-            </button>
-            <button
-              className={`toggle-btn ${view === "table" ? "active" : ""}`}
-              onClick={() => setView("table")}
-            >
-              Table
-            </button>
-            <button
-              className={`toggle-btn ${view === "text" ? "active" : ""}`}
-              onClick={() => setView("text")}
-            >
-              Text
-            </button>
-          </div>
-          <div className="progress-bar-container">
-            <p>
-              {getDone()}/{tasks.length} Tasks Completed
-            </p>
-            <progress
-              value={getDone() / tasks.length}
-              className="progress-bar"
-            />
-          </div>
-        </div>
+    <div className="w-full h-screen p-2">
+      <div className="flex flex-col gap-4 h-full">
+        <Header
+          view={view}
+          setView={setView}
+          total={tasks.length}
+          done={getDone()}
+        />
 
-        {view === "combined" ? (
-          <div className="combined-view">
-            <div className="tasks-panel">
-              <TaskList
-                tasks={tasks}
-                onTaskToggle={handleTaskToggle}
-                onTaskDelete={handleTaskDelete}
-                onTaskEdit={handleTaskEdit}
-                onTaskAdd={handleTaskAdd}
-                onStatusChange={handleStatusChange}
-              />
-            </div>
-            <div className="text-panel">
-              <div className="edit-mode">
-                <textarea
-                  ref={textAreaRef}
-                  className="edit-area"
-                  value={text}
-                  onChange={handleTextChange}
-                  placeholder="Enter your tasks here using format: [ ] Task name or [x] Completed task"
-                />
-              </div>
-            </div>
-          </div>
-        ) : view === "table" ? (
-          <TaskList
-            tasks={tasks}
-            onTaskToggle={handleTaskToggle}
-            onTaskDelete={handleTaskDelete}
-            onTaskEdit={handleTaskEdit}
-            onTaskAdd={handleTaskAdd}
-            onStatusChange={handleStatusChange}
-          />
-        ) : (
-          <div className="text-view">
-            <div className="edit-mode">
-              <textarea
-                ref={textAreaRef}
-                className="edit-area"
-                value={text}
-                onChange={handleTextChange}
-                placeholder="Enter your tasks here using format: [ ] Task name or [x] Completed task"
-              />
-            </div>
-            {tasks.length === 0 && (
-              <div className="help-text">
-                <p>Add tasks using this format:</p>
-                <pre>
-                  [ ] Incomplete task{"\n"}
-                  [*] Pendig task{"\n"}
-                  [x] Completed task
-                </pre>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="w-full flex-1 border-[var(--vscode-editorIndentGuide-background)] border-1 rounded-lg overflow-hidden">
+          {view === "combined" && (
+            <TaskCombined
+              tasks={tasks}
+              onTaskDelete={handleTaskDelete}
+              onTaskEdit={handleTaskEdit}
+              onTaskAdd={handleTaskAdd}
+              onStatusChange={handleStatusChange}
+              ref={textAreaRef}
+              text={text}
+              onChange={handleTextChange}
+            />
+          )}
+
+          {view === "table" && (
+            <TaskTable
+              tasks={tasks}
+              onTaskDelete={handleTaskDelete}
+              onTaskEdit={handleTaskEdit}
+              onTaskAdd={handleTaskAdd}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+
+          {view === "text" && (
+            <TaskText
+              ref={textAreaRef}
+              text={text}
+              onChange={handleTextChange}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
