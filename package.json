@@ -4,7 +4,7 @@
   "description": "A simple text based task list with the list view in vs code",
   "version": "1.0.1",
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.102.0"
   },
   "categories": [
     "Other"
