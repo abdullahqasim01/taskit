@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import TaskTable from "./components/TaskTable";
-import "./TaskitEditor.css";
+import "./TodoitEditor.css";
 import { TaskType, VSCodeApiType } from "./types";
 import Header from "./components/Header";
 import TaskText from "./components/TaskText";
@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-const TaskitEditor: React.FC = () => {
+const TodoitEditor: React.FC = () => {
   const [text, setText] = useState(window.initialData?.text || "");
   const [view, setView] = useState<"combined" | "table" | "text">("table");
   const [vscodeApi] = useState(() => acquireVsCodeApi());
@@ -321,4 +321,4 @@ const TaskitEditor: React.FC = () => {
   );
 };
 
-export default TaskitEditor;
+export default TodoitEditor;

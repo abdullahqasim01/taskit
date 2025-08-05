@@ -1,6 +1,6 @@
 {
-  "name": "taskit",
-  "displayName": "TaskIt",
+  "name": "todoit",
+  "displayName": "Todoit",
   "description": "A simple text based task list with the list view in vs code",
   "version": "1.0.0",
   "engines": {
@@ -14,17 +14,17 @@
     "Other"
   ],
   "license": "SEE LICENSE IN LICENSE.txt",
-  "homepage": "https://github.com/abdullahqasim01/taskit",
+  "homepage": "https://github.com/abdullahqasim01/todoit",
   "bugs": {
-    "url": "https://github.com/abdullahqasim01/taskit/issues",
+    "url": "https://github.com/abdullahqasim01/todoit/issues",
     "email": "contact@abdullahqasim.me"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/abdullahqasim01/taskit.git"
+    "url": "https://github.com/abdullahqasim01/todoit.git"
   },
   "keywords": [
-    "taskit",
+    "todoit",
     "todo list",
     "tasks list",
     "todo tracker",
@@ -42,31 +42,31 @@
   "contributes": {
     "languages": [
       {
-        "id": "taskit",
+        "id": "todoit",
         "extensions": [
-          ".taskit",
-          ".taskit.txt"
+          ".todoit",
+          ".todoit.txt"
         ],
         "aliases": [
-          "TaskIt"
+          "Todoit"
         ],
         "icon": {
-          "dark": "./images/taskit-icon.svg",
-          "light": "./images/taskit-icon.svg"
+          "dark": "./images/todoit-icon.svg",
+          "light": "./images/todoit-icon.svg"
         }
       }
     ],
     "commands": [],
     "customEditors": [
       {
-        "viewType": "taskit.taskitEditor",
-        "displayName": "TaskIt Editor",
+        "viewType": "todoit.todoitEditor",
+        "displayName": "Todoit Editor",
         "selector": [
           {
-            "filenamePattern": "*.taskit"
+            "filenamePattern": "*.todoit"
           },
           {
-            "filenamePattern": "*.taskit.txt"
+            "filenamePattern": "*.todoit.txt"
           }
         ],
         "priority": "default"

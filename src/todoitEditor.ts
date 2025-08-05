@@ -2,17 +2,17 @@ import path from "path";
 import fs from "fs";
 import * as vscode from "vscode";
 
-export class TaskitEditorProvider implements vscode.CustomTextEditorProvider {
+export class TodoitEditorProvider implements vscode.CustomTextEditorProvider {
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    const provider = new TaskitEditorProvider(context);
+    const provider = new TodoitEditorProvider(context);
     const providerRegistration = vscode.window.registerCustomEditorProvider(
-      TaskitEditorProvider.viewType,
+      TodoitEditorProvider.viewType,
       provider
     );
     return providerRegistration;
   }
 
-  private static readonly viewType = "taskit.taskitEditor";
+  private static readonly viewType = "todoit.todoitEditor";
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -78,7 +78,7 @@ export class TaskitEditorProvider implements vscode.CustomTextEditorProvider {
         this.context.extensionUri,
         "out",
         "webview",
-        "taskit-editor.js"
+        "todoit-editor.js"
       )
     );
 
@@ -87,7 +87,7 @@ export class TaskitEditorProvider implements vscode.CustomTextEditorProvider {
         this.context.extensionUri,
         "out",
         "webview",
-        "taskit-editor.css"
+        "todoit-editor.css"
       )
     );
 
@@ -102,7 +102,7 @@ export class TaskitEditorProvider implements vscode.CustomTextEditorProvider {
               webview.cspSource
             } 'unsafe-inline'; script-src 'nonce-${nonce}';">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>TaskIt Editor</title>
+            <title>Todoit Editor</title>
             <link href="${styleUri}" rel="stylesheet">
         </head>
         <body>

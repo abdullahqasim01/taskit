@@ -13,14 +13,14 @@ export default defineConfig({
     outDir: "out/webview",
     lib: {
       entry: resolve(__dirname, "src/webview/index.tsx"),
-      name: "TaskitEditor",
-      fileName: "taskit-editor",
+      name: "TodoitEditor",
+      fileName: "todoit-editor",
       formats: ["iife"],
     },
     rollupOptions: {
       output: {
-        entryFileNames: "taskit-editor.js",
-        assetFileNames: "taskit-editor.css",
+        entryFileNames: "todoit-editor.js",
+        assetFileNames: "todoit-editor.css",
       },
     },
     minify: false,

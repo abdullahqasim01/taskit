@@ -1,10 +1,10 @@
-# TaskIt 📝
+# Todoit 📝
 
 A simple yet powerful task management extension for VS Code that combines text-based simplicity with an interactive task view. Keep your tasks organized and accessible right within your development environment.
 
 ## ✨ Features
 
-TaskIt provides a seamless task management experience with:
+Todoit provides a seamless task management experience with:
 
 ### 📋 Interactive Task Management
 - **Dual View Mode**: Switch between raw text and interactive table view
@@ -13,7 +13,7 @@ TaskIt provides a seamless task management experience with:
 - **Real-time Sync**: Changes in text mode instantly reflect in table view and vice versa
 
 ### 📄 File Format Support
-- Works with `.taskit` and `.taskit.txt` files
+- Works with `.todoit` and `.todoit.txt` files
 - Simple, human-readable text format
 - Compatible with any text editor
 - Version control friendly
@@ -33,7 +33,7 @@ TaskIt provides a seamless task management experience with:
 
 ## 🚀 Getting Started
 
-1. **Create a Task File**: Create a new file with `.taskit` or `.taskit.txt` extension
+1. **Create a Task File**: Create a new file with `.todoit` or `.todoit.txt` extension
 2. **Add Tasks**: Write tasks using the simple checkbox syntax:
    ```
    [ ] Review pull request
@@ -76,7 +76,7 @@ Notes:
 
 ## 🔧 Installation
 
-1. Install from the VS Code Marketplace (search for taskit on marketplace.)
+1. Install from the VS Code Marketplace (search for todoit on marketplace.)
 
 ## 📋 Requirements
 
@@ -85,7 +85,7 @@ Notes:
 
 ## 🎛️ Extension Settings
 
-TaskIt works out of the box with no configuration required. The extension automatically activates when you open `.taskit` or `.taskit.txt` files.
+Todoit works out of the box with no configuration required. The extension automatically activates when you open `.todoit` or `.todoit.txt` files.
 
 ## 🐛 Known Issues
 
@@ -95,7 +95,7 @@ TaskIt works out of the box with no configuration required. The extension automa
 
 ### 1.0.0
 
-- Initial release of TaskIt
+- Initial release of Todoit
 - Basic task management with checkbox syntax
 - Dual view mode (text and table)
 - Real-time synchronization between views
@@ -111,4 +111,4 @@ This extension is provided as-is. Please check the license file for more details
 
 ---
 
-**Enjoy staying organized with TaskIt! 🎉**
+**Enjoy staying organized with Todoit! 🎉**
