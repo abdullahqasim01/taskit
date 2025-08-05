@@ -68,17 +68,6 @@ const TaskList: React.FC<TaskListProps> = memo(
       return task.completed ? "done" : "todo";
     };
 
-    const getStatusDisplay = (status: "todo" | "doing" | "done") => {
-      switch (status) {
-        case "todo":
-          return { symbol: "[ ]", text: "To Do" };
-        case "doing":
-          return { symbol: "[*]", text: "Doing" };
-        case "done":
-          return { symbol: "[x]", text: "Done" };
-      }
-    };
-
     const handleStatusChange = (
       taskId: string,
       newStatus: "todo" | "doing" | "done"
@@ -108,7 +97,7 @@ const TaskList: React.FC<TaskListProps> = memo(
                   type="text"
                   value={addText}
                   onChange={(e) => setAddText(e.target.value)}
-                  className="edit-task-input-inline"
+                  className=""
                   autoFocus
                   onBlur={handleInputBlur}
                   onKeyDown={(e) => {

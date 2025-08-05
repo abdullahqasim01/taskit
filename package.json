@@ -15,11 +15,16 @@
     "languages": [
       {
         "id": "taskit",
-        "extensions": [".taskit", ".taskit.txt"],
-        "aliases": ["TaskIt"],
+        "extensions": [
+          ".taskit",
+          ".taskit.txt"
+        ],
+        "aliases": [
+          "TaskIt"
+        ],
         "icon": {
-          "dark": "./file-icons/taskit-icon.svg",
-          "light": "./file-icons/taskit-icon.svg"
+          "dark": "./images/taskit-icon.svg",
+          "light": "./images/taskit-icon.svg"
         }
       }
     ],
@@ -52,6 +57,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/react": "^19.1.8",
@@ -66,7 +72,9 @@
     "eslint": "^9.25.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "lightningcss": "^1.30.1"
   }
 }
