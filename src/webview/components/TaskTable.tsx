@@ -1,36 +1,22 @@
 import React, { useState, memo } from "react";
 import { TaskType } from "../types";
+import { useTasks } from "../contexts/TasksContext";
 
-
-interface TaskTableProps {
-  tasks: TaskType[];
-  onTaskDelete: (id: string) => void;
-  onTaskEdit: (id: string, newText: string) => void;
-  onTaskAdd: (text: string) => void;
-  onStatusChange: (id: string, status: "todo" | "doing" | "done") => void;
-}
-
-const TaskTable: React.FC<TaskTableProps> = memo(
-  ({
-    tasks,
-    onTaskDelete,
-    onTaskEdit,
-    onTaskAdd,
-    onStatusChange,
-  }) => {
+const TaskTable: React.FC = memo(
+  () => {
+    const { tasks, deleteTask, editTask, addTask, changeStatus } = useTasks();
     const [editingTask, setEditingTask] = useState<string | null>(null);
     const [editText, setEditText] = useState("");
     const [addText, setAddText] = useState("")
 
     const handleEditStart = (task: TaskType) => {
-      if (!onTaskEdit) return;
       setEditingTask(task.id);
       setEditText(task.text);
     };
 
     const handleEditSave = () => {
-      if (editingTask && onTaskEdit) {
-        onTaskEdit(editingTask, editText);
+      if (editingTask) {
+        editTask(editingTask, editText);
         setEditingTask(null);
         setEditText("");
       }
@@ -43,7 +29,7 @@ const TaskTable: React.FC<TaskTableProps> = memo(
 
     const handleAddtask = () => {
       if (editText === undefined) return;
-      onTaskAdd(addText);
+  addTask(addText);
       setAddText("")
     }
 
@@ -64,7 +50,7 @@ const TaskTable: React.FC<TaskTableProps> = memo(
       taskId: string,
       newStatus: "todo" | "doing" | "done"
     ) => {
-        onStatusChange(taskId, newStatus);
+  changeStatus(taskId, newStatus);
     };
 
     return (
@@ -149,7 +135,7 @@ const TaskTable: React.FC<TaskTableProps> = memo(
                       <td className="">
                         <div className="">
                           <button
-                            onClick={() => onTaskDelete(task.id)}
+                            onClick={() => deleteTask(task.id)}
                             className=""
                             title="Delete task"
                           >

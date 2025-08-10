@@ -1,11 +1,14 @@
+import { useTasks } from "../contexts/TasksContext";
+
 interface HeaderProps {
   view: string;
   setView: any;
-  done: number;
-  total: number;
 }
 
-const Header = ({ view, setView, done, total }: HeaderProps) => {
+const Header = ({ view, setView }: HeaderProps) => {
+  const { tasks, getDone } = useTasks();
+  const total = tasks.length;
+  const done = getDone();
   const button = "p-1 px-2";
   const buttonInactive = "text-[var(--vscode-editorLineNumber-foreground)]";
   const buttonActive =

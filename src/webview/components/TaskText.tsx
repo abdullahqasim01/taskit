@@ -1,10 +1,7 @@
-interface TaskTextProps {
-  text: string;
-  onChange: any;
-  ref: any;
-}
+import { useText } from "../contexts/TextContext";
 
-const TaskText = ({ text, onChange, ref }: TaskTextProps) => {
+const TaskText = () => {
+ const { text, handleTextChange, textAreaRef } = useText();
   return (
     <div className="h-full w-full relative">
       {text === "" && <pre className="absolute p-4 -z-10 text-[var(--vscode-editorLineNumber-foreground)]">
@@ -16,8 +13,8 @@ const TaskText = ({ text, onChange, ref }: TaskTextProps) => {
         </pre>}
       <textarea
         value={text}
-        onChange={onChange}
-        ref={ref}
+        onChange={handleTextChange}
+        ref={textAreaRef}
         className="w-full h-full p-4 resize-none"
       />
     </div>
